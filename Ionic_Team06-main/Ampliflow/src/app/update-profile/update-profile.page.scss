@@ -1,0 +1,87 @@
+/* Ensure the parent container of ion-content takes full height */
+ion-content {
+  display: flex;
+  align-items: center; /* Vertically center the items */
+  justify-content: center; /* Horizontally center the items */
+  min-height: calc(100vh - var(--ion-header-height)); /* Full height minus header */
+}
+
+/* Form container styles */
+.form-container {
+  width: 85%; /* Adjust the width as needed */
+  padding: 20px; /* Padding inside the form */
+  border: 1px solid #ddd; /* Border around the form */
+  border-radius: 8px; /* Rounded corners */
+  background-color: #f9f9f9; /* Background color */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Box shadow for depth */
+  margin: 0 auto; /* Center the form horizontally */
+  margin-bottom: 150px; 
+}
+
+/* Keep existing styles for form groups, buttons, etc. */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Styling for the form actions container */
+.form-actions {
+  display: flex; /* Use flexbox for layout */
+  justify-content: space-between; /* Space between buttons */
+  margin-top: 20px; /* Space above the button container */
+}
+
+/* Button styling */
+.btn {
+  padding: 10px 20px; /* Padding for buttons */
+  font-size: 16px; /* Font size for buttons */
+  border-radius: 5px; /* Rounded corners for buttons */
+}
+
+.btn-primary {
+  background-color: #041a31; /* Primary button color */
+  color: white; /* Text color */
+  border: none; /* Remove border */
+  transition: background-color 0.3s; /* Transition for hover effect */
+}
+
+.btn-secondary {
+  background-color: #f30505; /* Secondary button color */
+  color: white; /* Text color */
+  border: none; /* Remove border */
+  transition: background-color 0.3s; /* Transition for hover effect */
+}
+
+/* Hover effects */
+.btn-primary:hover {
+  background-color: #0056b3; /* Darker shade on hover */
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268; /* Darker shade on hover */
+}
+
+ion-toolbar {
+  display: flex;
+  justify-content: space-between; /* Space between items */
+  align-items: center; /* Vertically center items */
+}
+
+.title-centered {
+  flex: 1; /* Take up remaining space */
+  text-align: center; /* Center the text */
+}

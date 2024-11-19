@@ -1,0 +1,39 @@
+.profile-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.profile-pic-block {
+  width: 150px;
+  height: 150px;
+  margin-bottom: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    
+  }
+}
+
+h2 {
+  margin-top: 0;
+}
+
+p {
+  margin: 5px 0;
+  color: var(--ion-color-medium);
+}
+
+#logout-container {
+  bottom: 20px;
+  margin-top: 80px;
+}
+.button-container{
+ 
+  width: 100%;
+  padding: 0 20px;
+}

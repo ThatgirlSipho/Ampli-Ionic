@@ -1,0 +1,43 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="ion-text-center">Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="profile-container">
+    <!-- Profile Picture Block -->
+    <div class="profile-pic-block">
+      <img *ngIf="!isLoading"
+           [src]="'data:image/jpeg;base64,' + profile?.profilePic" 
+           alt="Profile Picture"
+           (click)="fileInput.click()">
+      <img *ngIf="!profile?.profilePic"
+           src="assets/profile.jpg"
+           alt="Default Profile Picture"
+           (click)="fileInput.click()">
+      <input #fileInput type="file" style="display: none" (change)="onFileSelected($event)">
+    </div>
+
+    <!-- Profile Information -->
+    <h2>{{ profile?.name || 'Your Name' }}</h2>
+    <p>Phone: {{ profile?.cellNumber || 'Not provided' }}</p>
+    <p>Email: {{ profile?.email || 'Not provided' }}</p>
+
+    <!-- Buttons Block -->
+     <div class="button-container">
+    <ion-button expand="block" color="primary" (click)="updateDetails()">Update Details</ion-button>
+    <ion-button expand="block" color="secondary" (click)="viewConsultant()">View Consultant</ion-button>
+    <ion-button expand="block" color="tertiary" (click)="goToHelp()">
+      <ion-icon name="help-circle-outline" slot="start"></ion-icon>
+      Help
+    </ion-button>
+    <div id="logout-container">
+      <ion-button expand="block" color="medium" fill="outline" (click)="logout()">Logout</ion-button>
+    </div>
+  </div>
+  </div>
+
+  <!-- Logout Button at Bottom -->
+ 
+</ion-content>

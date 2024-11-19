@@ -1,0 +1,57 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="ion-text-center">Applications</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="applicant-dash" id="main-content">
+  <!-- Search and filter bar -->
+  <div class="search-sort-bar">
+    <ion-item class="search-field">
+      <ion-label position="floating">Search Applications</ion-label>
+      <ion-input [(ngModel)]="searchTerm" (ionInput)="applyFilters()"></ion-input>
+    </ion-item>
+
+    <ion-item class="filter-field">
+      <ion-label>Filter by Status</ion-label>
+      <ion-select [(ngModel)]="selectedStatus" (ionChange)="applyFilters()">
+        <ion-select-option value="null">All Statuses</ion-select-option>
+        <ion-select-option *ngFor="let status of applicationStatuses" [value]="status.description">
+          {{ status.description }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
+  <!-- Cards for each application -->
+  <div class="row">
+    <div class="card-container">
+      <ion-card class="card" *ngFor="let application of filteredApplications()" (click)="resumeApplication(application.applicationId)">
+        <ion-card-header>
+          <ion-card-title class="card-title">{{ application.legalEntityName }}</ion-card-title>
+          <ion-icon 
+      name="trash" 
+      class="delete-icon" 
+      (click)="$event.stopPropagation(); confirmDelete(application.applicationId)">
+    </ion-icon>
+          
+        </ion-card-header>
+
+        <ion-card-content>
+          <p>Status: 
+            <span [ngClass]="getStatusClass(application.applicationStatusDescription)">
+              {{ application.applicationStatusDescription }}
+            </span>
+          </p>
+          <p>Application Type: {{ application.legalEntityTypeDescription }}</p>
+          <p>Start Date: {{ application.applicationStartDateTime | date:'medium' }}</p>
+          <ion-progress-bar [value]="application.progress / 100"></ion-progress-bar>
+          <p style="font-size: 0.75rem;">Completion: {{ application.progress }}%</p>
+        </ion-card-content>
+
+        <ion-card-footer class="card-footer">
+          Application ID: {{ application.applicationId }}
+        </ion-card-footer>
+      </ion-card>
+    </div>
+  </div>

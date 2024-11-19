@@ -1,0 +1,40 @@
+<ion-menu side="end" content-id="main-content" [contentId]="'main-content'" type="overlay">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Comments</ion-title>
+      <ion-buttons slot="end">
+        <ion-button (click)="toggleSidebar()">
+          <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content>
+    <ion-list class="comments-container">
+      <ion-card *ngFor="let comment of filteredComments" class="comment-card">
+        <ion-card-header>
+          <div class="profile-container">
+            <img *ngIf="comment?.employeeProfilePic" 
+                 [src]="'data:image/jpeg;base64,' + comment.employeeProfilePic" 
+                 alt="{{ comment.employeeName }}" 
+                 class="profile-pic">
+            <img *ngIf="!comment.employeeProfilePic" 
+                 src="assets/profile.jpg" 
+                 alt="Default Profile Picture" 
+                 class="profile-pic">
+            <div class="comment-info">
+              <ion-card-title>{{ comment?.employeeName }} {{ comment?.employeeSurname }}</ion-card-title>
+              <ion-card-subtitle>{{ comment?.datePosted | date:'medium' }}</ion-card-subtitle>
+            </div>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <p class="comment-description">{{ comment?.description }}</p>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<ion-router-outlet id="main-content"></ion-router-outlet>

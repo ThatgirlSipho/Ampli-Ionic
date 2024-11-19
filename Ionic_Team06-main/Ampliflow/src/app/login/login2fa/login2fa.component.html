@@ -1,0 +1,26 @@
+<div class="login-wrapper">
+  <ion-card class="box">
+    <ion-card-header>
+      <ion-card-title>Two-Factor Authentication</ion-card-title>
+    </ion-card-header>
+
+    <ion-card-content>
+      <!-- Message about verification code sent to email -->
+      <ion-text class="email-info">
+        A verification code was sent to your email address. Please enter the code below.
+      </ion-text>
+
+      <form [formGroup]="login2FAForm" (ngSubmit)="verifyCode()" autocomplete="off" class="form">
+        <ion-item class="full-width">
+          <ion-label position="floating">Verification Code</ion-label>
+          <ion-input formControlName="code"></ion-input>
+        </ion-item>
+        <ion-text color="danger" *ngIf="login2FAForm.get('code')?.hasError('required')">
+          Verification code is required
+        </ion-text>
+
+        <ion-button expand="block" type="submit" color="primary" class="btn-block">Verify</ion-button>
+      </form>
+    </ion-card-content>
+  </ion-card>
+</div>

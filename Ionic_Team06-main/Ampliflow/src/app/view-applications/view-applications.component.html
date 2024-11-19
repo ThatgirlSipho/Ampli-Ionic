@@ -1,0 +1,87 @@
+<!-- view-applications.component.html -->
+<div class="navbar">
+  <ion-button class="back-btn" (click)="goBack()" fill="clear">
+    <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+  </ion-button>
+  <h1>My Applications</h1>
+  <div class="icon-buttons">
+    <ion-button fill="clear" (click)="logout()">
+      <ion-icon slot="icon-only" name="log-out"></ion-icon>
+    </ion-button>
+    <ion-button fill="clear" (click)="toggleHelpMessage()">
+      <ion-icon slot="icon-only" name="help-circle-outline"></ion-icon>
+    </ion-button>
+  </div>
+</div>
+
+<div class="page-background"></div>
+
+<div class="applicant-dash">
+  <div class="search-sort-bar">
+    <ion-item>
+      <ion-input placeholder="Search Applications" [(ngModel)]="searchTerm" (ionInput)="applyFilters()"></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Filter by Status</ion-label>
+      <ion-select [(ngModel)]="selectedStatus" (ionChange)="applyFilters()">
+        <ion-select-option [value]="null">All Statuses</ion-select-option>
+        <ion-select-option *ngFor="let status of applicationStatuses" [value]="status.description">
+          {{ status.description }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+
+  <div class="row">
+    <div class="card-container">
+      <ion-card *ngFor="let application of filteredApplications()">
+        <ion-card-header>
+          <ion-card-title class="card-title" style="text-align: center">{{ application.legalEntityName }}</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <p>Status: <span [ngClass]="getStatusClass(application.applicationStatusDescription)">{{ application.applicationStatusDescription }}</span></p>
+          <p>Application Type: {{ application.legalEntityTypeDescription }}</p>
+          <p>Start Date: {{ application.applicationStartDateTime | date:'medium' }}</p>
+          <ion-progress-bar [value]="application.progress / 100"></ion-progress-bar>
+          <p style="font-size: 0.75rem;">Completion: {{ application.progress }}%</p>
+        </ion-card-content>
+        <ion-card-footer>
+          Application ID: {{ application.applicationId }}
+        </ion-card-footer>
+        <div class="crud-btns animate">
+          <ion-button expand="block" (click)="resumeApplication(application.applicationId)">View</ion-button>
+          <ion-button expand="block" color="danger" (click)="deleteApplication(application.applicationId)">Delete</ion-button>
+        </div>
+      </ion-card>
+    </div>
+  </div>
+
+  <!-- Help message -->
+  <div *ngIf="showHelp" class="help-message">
+    <h2>Help Information</h2>
+    <p>Welcome to your Applications Dashboard! Here is a detailed guide on how to use the features on this page:</p>
+
+    <h3>Search and Filter Applications</h3>
+    <p>You can search for specific applications or filter them by their status to find what you're looking for quickly.</p>
+    <ul>
+      <li><strong>Search Applications:</strong> Use the search bar at the top to type keywords related to the application. The search will look through all fields to help you locate relevant applications.</li>
+      <li><strong>Filter by Status:</strong> Use the dropdown menu to filter applications based on their status. You can choose from various statuses such as 'Pending Upload', 'Uploaded', 'Submitted', 'Approved', and 'Declined'. Selecting a status will display only the applications with that status.</li>
+    </ul>
+
+    <h3>Viewing Application Details</h3>
+    <p>To view more information about a specific application:</p>
+    <ul>
+      <li>Click the <strong>"View"</strong> button on the application card. This will redirect you to the detailed view of that application, where you can see all the relevant details and progress.</li>
+    </ul>
+
+    <h3>Deleting Applications</h3>
+    <p>If you need to remove an application from the list:</p>
+    <ul>
+      <li>Click the <strong>"Delete"</strong> button on the application card. A confirmation dialog will appear to ensure you want to proceed with the deletion. Confirming will remove the application from the list.</li>
+    </ul>
+
+    <p>If you need further assistance or have any questions, please contact support.</p>
+
+    <ion-button (click)="toggleHelpMessage()">Close</ion-button>
+  </div>
+</div>

@@ -1,0 +1,52 @@
+.help-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  ion-item {
+    margin-bottom: 20px;
+  }
+  
+  ion-card {
+    margin-top: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+  }
+  
+  ion-card.expanded {
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* More shadow when expanded */
+  }
+  
+  .no-results {
+    text-align: center;
+    color: #888;
+    margin-top: 20px;
+  }
+  
+  ion-card-title {
+    font-size: 1.2rem;
+  }
+  
+  ion-card-content p {
+    margin: 0;
+    padding: 0;
+  }
+  
+  ion-card-content p + p {
+    margin-top: 10px; /* Space between paragraphs */
+  }
+  ion-toolbar {
+    display: flex;
+    justify-content: space-between; /* Space between items */
+    align-items: center; /* Vertically center items */
+  }
+  
+  .title-centered {
+    flex: 1; /* Take up remaining space */
+    text-align: center; /* Center the text */
+  }
+  .highlight {
+    background-color: yellow; /* Highlight color */
+    font-weight: bold; /* Optional: make it bold */
+  }
+  

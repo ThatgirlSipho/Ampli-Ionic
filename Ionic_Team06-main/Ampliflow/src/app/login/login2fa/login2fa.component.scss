@@ -1,0 +1,71 @@
+/* Wrapper for the 2FA authentication */
+.login-wrapper {
+  display: flex;
+  justify-content: center; /* Center the card */
+  align-items: center; /* Center vertically */
+  height: 100vh; /* Full viewport height */
+  padding: 16px; /* Padding around the card */
+}
+
+/* Card styling for the 2FA box */
+.box {
+  background: rgba(255, 255, 255, 0.9); /* Slightly opaque white background */
+  border-radius: 16px; /* Rounded corners */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+  padding: 20px; /* Padding inside the card */
+  max-width: 400px; /* Max width for the card */
+  width: 100%; /* Full width on smaller screens */
+}
+
+/* Styling for card header */
+ion-card-header {
+  text-align: center; /* Center align the title */
+  margin-bottom: 15px; /* Spacing below header */
+}
+
+/* Title styling */
+ion-card-title {
+  font-size: 1.6rem; /* Larger font for the title */
+  color: #0077b6; /* Blue color for the title */
+}
+
+/* Info text styling */
+.email-info {
+  text-align: center; /* Center the info text */
+  color: #555; /* Darker grey for readability */
+  margin-bottom: 20px; /* Spacing below info text */
+}
+
+/* Form styling */
+.form {
+  display: flex;
+  flex-direction: column; /* Stack inputs vertically */
+}
+
+/* Input field styling */
+ion-item.full-width {
+  width: 100%; /* Full width input */
+}
+
+.mat-input-element {
+  background: rgba(255, 255, 255, 0.8); /* Light background for input */
+  border-radius: 8px; /* Rounded inputs */
+}
+
+/* Validation error text styling */
+ion-text[color="danger"] {
+  font-size: 0.9rem; /* Smaller font for error messages */
+  margin-top: 5px; /* Spacing above error message */
+  text-align: center; /* Center the error message */
+}
+
+/* Button styling */
+.btn-block {
+  margin-top: 20px; /* Space above button */
+  border-radius: 8px; /* Rounded button */
+}
+
+/* Button hover effect */
+ion-button:hover {
+  background-color: #005f8a; /* Darker shade on hover */
+}

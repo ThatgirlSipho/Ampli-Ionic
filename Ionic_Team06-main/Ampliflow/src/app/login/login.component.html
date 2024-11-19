@@ -1,0 +1,43 @@
+<ion-content>
+  <div class="page-background"></div> <!-- Background gradient -->
+  
+     <!-- Logo text at the top -->
+     <div class="amplifin-logo">
+      A M P L I F L O <span class="yellow-n">W</span>
+    </div>
+    
+  <div class="login-wrapper">
+    <div class="box"> <!-- Applying glass effect and new styles -->
+      <ion-card-header>
+        <ion-card-title>Log in</ion-card-title>
+      </ion-card-header>
+
+      <form [formGroup]="loginForm" (ngSubmit)="login()" autocomplete="off">
+        <ion-card-content>
+          <!-- Username field -->
+          <ion-item>
+            <ion-label position="floating">Username</ion-label>
+            <ion-input type="email" formControlName="userName"></ion-input>
+          </ion-item>
+
+          <!-- Password field -->
+          <ion-item>
+            <ion-label position="floating">Password</ion-label>
+            <ion-input type="password" formControlName="password"></ion-input>
+          </ion-item>
+        </ion-card-content>
+
+        <!-- Login button -->
+        <ion-button expand="block" type="submit" [disabled]="!loginForm.valid" class="btn-block">Log in</ion-button>
+
+        <div class="link-container">
+          <!-- Forgot Password Link -->
+          <p>Forgot Password? Click <ion-router-link routerLink="/forgot-password">here</ion-router-link></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  
+</ion-content>

@@ -1,0 +1,1563 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="ion-text-center">{{legalDescription}} Application</ion-title>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" fill="clear">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button (click)="openCommentsSidebar()">
+        <ion-icon name="chatbubbles"></ion-icon> <!-- Use an ion icon for the button -->
+        Comments
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<app-comment-side-bar #commentSidebar [applicationId]="applicationId"></app-comment-side-bar>
+<div class="page-background"></div>
+
+<ion-content [fullscreen]="true" class="application-content">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Application</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <!-- Step Indicator -->
+  <ion-segment [(ngModel)]="selectedStep" class="step-indicator" (ionChange)="onStepChange($event)">
+    <ion-segment-button *ngFor="let step of steps; let i = index" [value]="i">
+      Step {{ i + 1 }}
+    </ion-segment-button>
+  </ion-segment>
+
+  <!-- Step Content -->
+  <div class="step-content">
+    <ng-container *ngFor="let step of steps; let i = index">
+      <ng-container *ngIf="selectedStep === i">
+        <div [ngSwitch]="i">
+         
+
+
+          <div *ngSwitchCase="0" class="form-container">
+            <h2>Basic Legal Entity Details</h2>
+          
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()">
+          
+              <div class="form-row">
+                <ion-label class="labels">Full Registered Name of Legal Entity</ion-label>
+               
+                <ion-input formControlName="legalEntityName"></ion-input>
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('legalEntityName')?.invalid && applicationForm.get('legalEntityName')?.touched">
+                  <p *ngIf="applicationForm.get('legalEntityName')?.hasError('required')">Legal Entity Name is required.</p>
+                </ion-note>
+               
+              </div>
+          
+              <div class="form-row">
+                <ion-label class="labels">Branch Trading Name</ion-label>
+                <ion-input formControlName="legalEntityTradingName"></ion-input>
+              </div>
+          
+              <div class="form-row">
+                <ion-label class="labels">Legal Entity Registration Number</ion-label>
+                <ion-input formControlName="legalEntityRegistrationNumber"></ion-input>
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('legalEntityRegistrationNumber')?.invalid && applicationForm.get('legalEntityRegistrationNumber')?.touched">
+                  <p *ngIf="applicationForm.get('legalEntityRegistrationNumber')?.hasError('pattern')">Invalid Business Registration Number. Format: YYYY/XXXXXX/XX.</p>
+                </ion-note>
+              </div>
+          
+              <div class="form-row">
+                <ion-label class="labels">Is the Legal Entity VAT registered?</ion-label>
+                <ion-select formControlName="vatRegisteredBool">
+                  <ion-select-option [value]="true">Yes</ion-select-option>
+                  <ion-select-option [value]="false">No</ion-select-option>
+                </ion-select>
+              </div>
+          
+              <div *ngIf="applicationForm.get('vatRegisteredBool')?.value === true" class="form-row">
+                <ion-label class="labels">VAT Registration Number</ion-label>
+                <ion-input formControlName="vatRegistrationNumber"></ion-input>
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('vatRegistrationNumber')?.invalid && applicationForm.get('vatRegistrationNumber')?.touched">
+                  <p *ngIf="applicationForm.get('vatRegistrationNumber')?.hasError('pattern')">Invalid VAT Registration Number. It should start with '4' followed by 9 digits.</p>
+                </ion-note>
+              </div>
+
+
+              <div class="form-row">
+                <ion-label class="labels">Legal Entity Physical Address</ion-label>
+                <ion-input 
+                  #physicalAddressInput 
+                  formControlName="legalEntityPhysicalAddress"
+                  (ionBlur)="initAutocomplete(physicalAddressInput, 'physical')"></ion-input>
+              </div>
+            
+              <!-- Checkbox to copy physical address to postal -->
+              <div class="form-row">
+                <ion-checkbox (ionChange)="copyAddress($event.detail.checked)">Same as Physical Address</ion-checkbox>
+              </div>
+            
+              <!-- Legal Entity Postal Address -->
+              <div class="form-row">
+                <ion-label class="labels">Legal Entity Postal Address</ion-label>
+                <ion-input 
+                  #postalAddressInput 
+                  formControlName="legalEntityPostalAddress"
+                  (ionBlur)="initAutocomplete(postalAddressInput, 'postal')"></ion-input>
+              </div>
+
+
+
+
+              <div class="form-row">
+                <ion-label class="labels">Industry Description</ion-label>
+                <ion-input formControlName="industryDescription"></ion-input>
+              </div>
+          
+              <div class="form-row">
+                <ion-label class="labels">Industry Regulatory Body</ion-label>
+                <ion-select formControlName="industryRegulatoryBodyId">
+                  <ion-select-option *ngFor="let body of industryRegulatoryBodies" [value]="body.industryRegulatoryBodyId">
+                    {{ body.description }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+          
+              <div *ngIf="applicationForm.get('industryRegulatoryBodyId')?.value == 5" class="form-row">
+                <ion-label class="labels">Reason for Other</ion-label>
+                <ion-input formControlName="otherIndustryBody"></ion-input>
+        <br>
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('otherIndustryBody')?.hasError('required')">
+                  
+                  <p>Reason for Other is required</p>
+                </ion-note>
+              </div>
+          
+              <div class="form-row">
+                <ion-label class="labels">Registration Number with Regulatory Body</ion-label>
+                <ion-input formControlName="regulatoryBodyRegistrationNumber"></ion-input>
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+          
+            </form>
+          </div>
+          
+          
+          
+
+
+          
+          <div *ngSwitchCase="1" class="form-container">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()">
+          
+              <!-- Legal Entity Dependants -->
+              <div formArrayName="legalEntityDependants">
+                <h2>Legal Representatives</h2>
+                <div class="page-description">
+                  <p>How many Legal Representatives does the business have? Click the button to add the business' Legal Representatives.</p>
+                </div>
+                <div *ngFor="let dependant of legalEntityDependants.controls; let i = index" [formGroupName]="i">
+                  
+                  <div class="form-row">
+                    <ion-label class="labels">Full Name</ion-label>
+                    <ion-input formControlName="dependantsFullName" placeholder="Enter full name"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Income Tax Number</ion-label>
+                    <ion-input formControlName="dependantsIncomeTaxNumber" placeholder="Enter Income Tax Number"></ion-input>
+                    <ion-note slot="error" *ngIf="dependant.get('dependantsIncomeTaxNumber')?.invalid && dependant.get('dependantsIncomeTaxNumber')?.touched" color="danger">
+                      Invalid Income Tax Number. Please enter a 10-digit number.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Identification Type</ion-label>
+                    <ion-select formControlName="identificationTypeId" placeholder="Select Type">
+                      <ion-select-option *ngFor="let type of identificationTypes" [value]="type.identificationTypeId">
+                        {{ type.description }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <ion-button *ngIf="applicationStatusId === 1" color="danger" (click)="removeDependant(i)">
+                    Remove
+                  </ion-button>
+                </div>
+                
+                <ion-button *ngIf="applicationStatusId === 1" color="primary" (click)="addDependant()">
+                  Add New Representative
+                </ion-button>
+              </div>
+          
+              <!-- Shareholders Details -->
+              <div *ngIf="legalEntityTypeId === 2" formArrayName="shareholders" style="margin-top: 30px;">
+                <h2>Shareholders</h2>
+                <div class="page-description">
+                  <p>Are there any shareholders with 20% or more shareholding in the company? Click the button below to add shareholders with 20% or more shareholding.</p>
+                </div>
+                <div *ngFor="let shareholder of shareholders.controls; let i = index" [formGroupName]="i">
+                  
+                  <div class="form-row">
+                    <ion-label class="labels">Legal Entity Name</ion-label>
+                    <ion-input formControlName="shareholderLegalEntityName" placeholder="Enter legal entity name"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Legal Entity Type</ion-label>
+                    <ion-select formControlName="legalEntityStructureId" placeholder="Select entity type">
+                      <ion-select-option *ngFor="let type of legalEntityStructures" [value]="type.legalEntityStructureId">
+                        {{ type.description }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <ion-button *ngIf="applicationStatusId === 1" color="danger" (click)="removeShareholder(i)">
+                    Remove Shareholder
+                  </ion-button>
+                </div>
+                
+                <ion-button *ngIf="applicationStatusId === 1" color="primary" (click)="addShareholder()">
+                  Add Shareholder
+                </ion-button>
+              </div>
+          
+              <!-- Authorized Signatories -->
+              <div formArrayName="authorizedSignatories" style="margin-top: 30px;">
+                <h2>Authorized Signatories</h2>
+                <div class="page-description">
+                  <p>Details of Undersigned Authorized Signatories. 1-2 Undersigned Authorized Signatories may be added. Click the button below to add them.</p>
+                </div>
+                <div *ngFor="let signatory of authorizedSignatories.controls; let i = index" [formGroupName]="i">
+                  
+                  <div class="form-row">
+                    <ion-label class="labels">Full Name</ion-label>
+                    <ion-input formControlName="signatoriesName" placeholder="Enter full name"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Email Address</ion-label>
+                    <ion-input formControlName="signatoriesEmailAddress" placeholder="Enter email address"></ion-input>
+                    <ion-note slot="error" *ngIf="signatory.get('signatoriesEmailAddress')?.invalid && signatory.get('signatoriesEmailAddress')?.touched" color="danger">
+                      Invalid email address.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Capacity</ion-label>
+                    <ion-input formControlName="signatoriesCapacity" placeholder="Enter capacity"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Cell Number</ion-label>
+                    <ion-input formControlName="signatoriesCellNumber" placeholder="Enter cell number"></ion-input>
+                    <ion-note slot="error" *ngIf="signatory.get('signatoriesCellNumber')?.invalid && signatory.get('signatoriesCellNumber')?.touched" color="danger">
+                      Invalid Mobile Number. Please enter a 10-digit number starting with 0.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Identification Number</ion-label>
+                    <ion-input formControlName="signatoriesIdentificationNumber" placeholder="Enter identification number"></ion-input>
+                    <ion-note slot="error" *ngIf="signatory.get('signatoriesIdentificationNumber')?.invalid && signatory.get('signatoriesIdentificationNumber')?.touched" color="danger">
+                      Invalid ID Number. It should be 13 digits long.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Legal Dependant</ion-label>
+                    <ion-select formControlName="legalDependantBit" placeholder="Select if legal dependant">
+                      <ion-select-option [value]="true">Yes</ion-select-option>
+                      <ion-select-option [value]="false">No</ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <ion-button *ngIf="applicationStatusId === 1" color="danger" (click)="removeAuthorizedSignatory(i)">
+                    Remove Signatory
+                  </ion-button>
+                </div>
+                
+                <ion-button *ngIf="applicationStatusId === 1" color="primary" (click)="addAuthorizedSignatory()">
+                  Add Signatory
+                </ion-button>
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+          
+            </form>
+          </div>
+          
+
+
+
+
+
+
+
+
+
+
+
+
+          <div *ngSwitchCase="2">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+          
+              <h2>Master User Details</h2>
+          
+              <!-- Master User Full Name -->
+              <div class="form-row">
+                <ion-label class="labels">Master User Full Name</ion-label>
+                <ion-input formControlName="masterUserFullName" class="basicLegalEntityDetails"></ion-input>
+                
+              </div>
+          
+              <!-- Master User ID Number -->
+              <div class="form-row">
+                <ion-label  class="labels">Master User ID Number</ion-label>
+                <ion-input formControlName="masterUserIdnumber" class="basicLegalEntityDetails"></ion-input>
+               
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('masterUserIdnumber')?.invalid && applicationForm.get('masterUserIdnumber')?.touched">
+                  <p *ngIf="applicationForm.get('masterUserIdnumber')?.hasError('pattern')">Invalid ID Number. It should be 13 digits long.</p>
+                </ion-note>
+              </div>
+          
+              <!-- Master User Email -->
+              <div class="form-row">
+                <ion-label  class="labels">Master User Email</ion-label>
+                <ion-input formControlName="masterUserEmail" type="email" class="basicLegalEntityDetails"></ion-input>
+              
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('masterUserEmail')?.invalid && applicationForm.get('masterUserEmail')?.touched">
+                  <p *ngIf="applicationForm.get('masterUserEmail')?.hasError('invalidEmail')">Invalid email format.</p>
+                </ion-note>
+              </div>
+          
+              <!-- Master User Mobile Number -->
+              <div class="form-row">
+                <ion-label class="labels">Master User Mobile Number</ion-label>
+                <ion-input formControlName="masterUserMobileNumber" class="basicLegalEntityDetails"></ion-input>
+               
+                <ion-note slot="error" color="danger" *ngIf="applicationForm.get('masterUserMobileNumber')?.invalid && applicationForm.get('masterUserMobileNumber')?.touched">
+                  <p *ngIf="applicationForm.get('masterUserMobileNumber')?.hasError('pattern')">Invalid Mobile Number. Please enter a 10-digit number starting with 0.</p>
+                </ion-note>
+              </div>
+          
+              <!-- Master User Capacity -->
+              <div class="form-row">
+                <ion-label class="labels">Master User Capacity</ion-label>
+                <ion-input formControlName="masterUserCapacity" class="basicLegalEntityDetails"></ion-input>
+                
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+          
+            </form>
+          </div>
+          
+
+
+
+
+
+
+
+
+
+
+          <div *ngSwitchCase="3">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+
+              <h2>Business Details</h2>
+          
+              <!-- Do payers visit the branch outlet? -->
+              <div class="form-row">
+                <ion-label class="labels">Do payers visit the branch outlet?</ion-label>
+                <ion-select formControlName="branchOutletBoolean" class="basicLegalEntityDetails">
+                  <ion-select-option [value]="true">Yes</ion-select-option>
+                  <ion-select-option [value]="false">No</ion-select-option>
+                </ion-select>
+              </div>
+          
+              <!-- Mandate Type -->
+              <div class="form-row">
+                <ion-label class="labels">Mandate Type</ion-label>
+                <ion-select formControlName="mandateTypeId" class="basicLegalEntityDetails">
+                  <ion-select-option *ngFor="let type of mandateTypes" [value]="type.mandateTypeId">
+                    {{ type.description }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+          
+              <!-- Do you make use of a call center? -->
+              <div class="form-row">
+                <ion-label  class="labels">Do you make use of a call center?</ion-label>
+                <ion-select formControlName="callCenterBoolean" class="basicLegalEntityDetails">
+                  <ion-select-option [value]="true">Yes</ion-select-option>
+                  <ion-select-option [value]="false">No</ion-select-option>
+                </ion-select>
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+          
+            </form>
+          </div>
+
+
+
+
+
+
+
+
+          <div *ngSwitchCase="4">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+            
+              <h2>Current Method/s of Collection</h2>
+              <div class="form-row">
+                <ion-label class="labels">Collection Types</ion-label>
+                <ion-select formControlName="collectionTypeIds" multiple (ionChange)="onCollectionTypeChange($event)" class="basicLegalEntityDetails">
+                  <ion-select-option *ngFor="let type of collectionTypes" [value]="type.collectionTypeId">
+                    {{ type.description }}
+                  </ion-select-option>
+                </ion-select>
+              </div>
+          
+              <!-- DebiCheck Form -->
+              <div *ngIf="isCollectionTypeSelected(1)">
+                <h3>DebiCheck</h3>
+                <div formGroupName="debiCheck">
+                  <div class="form-row">
+                    <ion-label class="labels">DebiCheck Submitted Monthly (Value)</ion-label>
+                    <ion-input formControlName="monthlyValue" placeholder="Enter value"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(1)?.get('monthlyValue')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">DebiCheck Submitted Monthly (Volume)</ion-label>
+                    <ion-input formControlName="monthlyVolume" placeholder="Enter volume"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(1)?.get('monthlyVolume')?.hasError('pattern')">
+                      Volume must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Success Rate (%)</ion-label>
+                    <ion-input formControlName="successRate" placeholder="Enter success rate"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(1)?.get('successRate')?.hasError('pattern')">
+                      Success Rate must be a percentage with up to 3 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Existing Dispute (%)</ion-label>
+                    <ion-input formControlName="existingDispute" placeholder="Enter dispute percentage"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(1)?.get('existingDispute')?.hasError('pattern')">
+                      Dispute Rate must be a percentage with up to 3 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">DebiCheck Average Tracking Days Used</ion-label>
+                    <ion-input formControlName="averageTrackingDaysUsed" placeholder="Enter average tracking days"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(1)?.get('averageTrackingDaysUsed')?.hasError('pattern')">
+                      Average Tracking Days must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+                </div>
+              </div>
+          
+                <!-- EFT Form -->
+                <div *ngIf="isCollectionTypeSelected(2)">
+                  <h3>EFT</h3>
+                  <div formGroupName="eft">
+                    <div class="form-row">
+                      <ion-label for="monthlyValue" class="labels">EFT Debits Submitted Monthly (Value)</ion-label>
+                      
+                        <ion-input formControlName="monthlyValue" placeholder="Enter value"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(2)?.get('monthlyValue')?.hasError('pattern')">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                     
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="monthlyVolume" class="labels">EFT Debits Submitted Monthly (Volume)</ion-label>                   
+                        <ion-input formControlName="monthlyVolume" placeholder="Enter volume"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(2)?.get('monthlyVolume')?.hasError('pattern')">
+                          Volume must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="successRate" class="labels">Success Rate (%)</ion-label>
+                        <ion-input formControlName="successRate" placeholder="Enter success rate"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(2)?.get('successRate')?.hasError('pattern')">
+                          Success Rate must be a percentage with up to 3 digits before the decimal and 2 digits after.
+                        </ion-note>                    
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="existingDispute" class="labels">EFT Existing Dispute (%)</ion-label>
+                        <ion-input formControlName="existingDispute" placeholder="Enter dispute percentage"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(2)?.get('existingDispute')?.hasError('pattern')">
+                          Dispute Rate must be a percentage with up to 3 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+                  </div>
+                </div>
+          
+                <!-- SEFT Form -->
+                <div *ngIf="isCollectionTypeSelected(3)">
+                  <h3>SEFT</h3>
+                  <div formGroupName="seft">
+                    <div class="form-row">
+                      <ion-label for="monthlyValue" class="labels">SEFT Debits Submitted Monthly (Value)</ion-label>
+                        <ion-input formControlName="monthlyValue" placeholder="Enter value"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(3)?.get('monthlyValue')?.hasError('pattern')">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="monthlyVolume" class="labels">SEFT Debits Submitted Monthly (Volume)</ion-label>
+                        <ion-input formControlName="monthlyVolume" placeholder="Enter volume"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(3)?.get('monthlyVolume')?.hasError('pattern')">
+                          Volume must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="successRate" class="labels">Success Rate (%)</ion-label>
+                        <ion-input formControlName="successRate" placeholder="Enter success rate"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(3)?.get('successRate')?.hasError('pattern')">
+                          Success Rate must be a percentage with up to 3 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+                  </div>
+                </div>
+          
+                <!-- Card Payment Form -->
+                <div *ngIf="isCollectionTypeSelected(4)">
+                  <h3>Card Payments</h3>
+                  <div formGroupName="cardPayment">
+                    <div class="form-row">
+                      <ion-label  for="monthlyDebitValue" class="labels">Card Payments Submitted Monthly Debit (Value)</ion-label>
+                        <ion-input formControlName="monthlyDebitValue" placeholder="Enter value"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(4)?.get('monthlyDebitValue')?.hasError('pattern')">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="monthlyCreditValue" class="labels">Card Payments Submitted Monthly Credit (Value)</ion-label>
+                        <ion-input formControlName="monthlyCreditValue" placeholder="Enter value"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(4)?.get('monthlyCreditValue')?.hasError('pattern')">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="currentServiceProvider" class="labels">Current Service Provider</ion-label>
+                        <ion-input formControlName="currentServiceProvider" placeholder="Enter service provider"></ion-input>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="debitCommission" class="labels">Debit Commission</ion-label>
+                        <ion-input formControlName="debitCommission" placeholder="Enter commission"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(4)?.get('debitCommission')?.hasError('pattern')">
+                          Value must be a number with up to 3 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="creditCommission" class="labels">Credit Commission</ion-label>
+                        <ion-input formControlName="creditCommission" placeholder="Enter commission"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(4)?.get('creditCommission')?.hasError('pattern')">
+                          Value must be a number with up to 3 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+                  </div>
+                </div>
+          
+                <!-- Cash Form -->
+                <div *ngIf="isCollectionTypeSelected(5)">
+                  <h3>Cash</h3>
+                  <div formGroupName="cash">
+                    <div class="form-row">
+                      <ion-label for="monthlyValue" class="labels">Cash Submitted Monthly (Value)</ion-label>
+                        <ion-input formControlName="monthlyValue" placeholder="Enter value"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(5)?.get('monthlyValue')?.hasError('pattern')">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="monthlyVolume" class="labels">Cash Submitted Monthly (Volume)</ion-label>
+                        <ion-input formControlName="monthlyVolume" placeholder="Enter volume"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(5)?.get('monthlyVolume')?.hasError('pattern')">
+                          Volume must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label for="successRate" class="labels">Success Rate (%)</ion-label>
+                        <ion-input formControlName="successRate" placeholder="Enter success rate"></ion-input>
+                        <ion-note slot="end" color="danger" *ngIf="getCollectionTypeFormGroup(5)?.get('successRate')?.hasError('pattern')">
+                          Success Rate must be a percentage with up to 3 digits before the decimal and 2 digits after.
+                        </ion-note>
+                    </div>
+          
+                    <div class="form-row">
+                      <ion-label class="labels">Will the Cash now be collected electronically?</ion-label>
+                        <ion-select formControlName="electronicBoolean">
+                          <ion-select-option [value]="true">Yes</ion-select-option>
+                          <ion-select-option [value]="false">No</ion-select-option>
+                        </ion-select>
+                    </div>
+                  </div>
+                </div>
+             
+          
+                <div class="button-group">
+                  <div class="row"  *ngIf="applicationStatusId === 1">
+                    <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                    <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                    
+                  </div>
+                </div>
+            </form>
+          </div>
+
+
+
+
+
+
+
+
+
+          <div *ngSwitchCase="5">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+
+              <div class="form-row">
+                <ion-label class="labels">Do you make use of an existing payment provider?</ion-label>
+               
+               
+                  <ion-select formControlName="existingPaymentProviderBoolean">
+                    <ion-select-option [value]="true">Yes</ion-select-option>
+                    <ion-select-option [value]="false">No</ion-select-option>
+                  </ion-select>
+              
+              </div>
+              
+              <div formArrayName="otherSupplierReasons" *ngIf="applicationForm.get('existingPaymentProviderBoolean')?.value">
+                <div *ngFor="let supplierReason of otherSupplierReasons.controls; let i = index" [formGroupName]="i">
+                  <div class="form-row">
+             
+                 
+                      <ion-label class="labels">Alternative Supplier Reasons</ion-label>
+                      <ion-select formControlName="alternativeSupplierReasonsId" multiple>
+                        <ion-select-option *ngFor="let reason of alternativeSupplierReasons" [value]="reason.alternativeSupplierReasonsId">
+                          {{ reason.description }}
+                        </ion-select-option>
+                      </ion-select>
+                  
+                  </div>
+                  
+                  <div class="form-row" *ngIf="(supplierReason.get('alternativeSupplierReasonsId')?.value ?? []).includes(7)">
+                    
+                      <ion-label class="labels">Other Supplier Reasons</ion-label>
+                      <ion-input formControlName="otherDescription" ></ion-input>
+                   
+                  </div>
+                </div>
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+          
+            </form>
+          </div>
+
+
+
+
+
+
+
+          <div *ngSwitchCase="6">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+              <h2>AET Management</h2>
+            
+                
+                <div class="form-row">
+
+                    <ion-label class="labels">AET Email</ion-label>
+                    <ion-input formControlName="aetEmail" placeholder="Enter email"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="applicationForm.get('aetEmail')?.invalid && applicationForm.get('aetEmail')?.touched">
+                      <small *ngIf="applicationForm.get('aetEmail')?.hasError('invalidEmail')">Invalid email format.</small>
+                    </ion-note>
+
+                </div>
+          
+                <div class="form-row">
+
+                    <ion-label class="labels">Monthly Processing Limit</ion-label>
+                    <ion-input formControlName="monthlyProcessingLimit" placeholder="Enter limit"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="applicationForm.get('monthlyProcessingLimit')?.invalid && applicationForm.get('monthlyProcessingLimit')?.touched">
+                      <small *ngIf="applicationForm.get('monthlyProcessingLimit')?.hasError('pattern')">The value must be a maximum of 10 digits</small>
+                    </ion-note>
+
+                </div>
+          
+           
+              
+                <div class="button-group">
+                  <div class="row"  *ngIf="applicationStatusId === 1">
+                    <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                    <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                    
+                  </div>
+                </div>
+          
+            </form>
+          </div>
+
+
+
+
+
+
+          <div *ngSwitchCase="7">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+              <h2>Product Selection Details</h2>
+              <div class="page-description">
+                <p>
+                  Transaction Volumes / Values indicated below: To be attained within 6
+                </p>
+              </div>
+
+              <div class="form-row">
+                <ion-label class="labels">Select Products</ion-label>
+                <ion-select formControlName="productIds" multiple (ionChange)="onProductChange($event)">
+                  <ion-select-option *ngFor="let product of products" [value]="product.productId">{{ product.description }}</ion-select-option>
+                </ion-select>
+              </div>
+          
+              <div *ngIf="isProductSelected(1)">
+                <h3>DebiCheck Product Details</h3>
+                <div formGroupName="debiCheckProducts">
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Authentication Transaction Types</ion-label>
+                    <ion-select formControlName="authenticationMechanismsId">
+                      <ion-select-option *ngFor="let mechanism of authenticationMechanisms" [value]="mechanism.authenticationMechanismsId">
+                        {{ mechanism.description }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Total Monthly Value</ion-label>
+                    <ion-input type="text" formControlName="totalValueMonthly"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(1)?.get('totalValueMonthly')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Maximum Installment Amount</ion-label>
+                    <ion-input type="text" formControlName="maximumSingleCollection"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(1)?.get('maximumSingleCollection')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                </div>
+              </div>
+          
+              <div *ngIf="isProductSelected(2)">
+                <h3>Debit & Credit Card Payments Product Details</h3>
+                <div formGroupName="debitCreditPayments">
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Total Monthly Value</ion-label>
+                    <ion-input type="text" formControlName="totalMonthlyValue"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(2)?.get('totalValueMonthly')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Average Transactional Value</ion-label>
+                    <ion-input type="text" formControlName="averageTransactionalValue"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(2)?.get('averageTransactionalValue')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Balance Enquiry</ion-label>
+                    <ion-select formControlName="balanceEnquiryBool">
+                      <ion-select-option [value]="true">Yes</ion-select-option>
+                      <ion-select-option [value]="false">No</ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Budget Facility</ion-label>
+                    <ion-select formControlName="budgetFacilityBool">
+                      <ion-select-option [value]="true">Yes</ion-select-option>
+                      <ion-select-option [value]="false">No</ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Cash Back at POS</ion-label>
+                    <ion-select formControlName="cashBackatPosBool">
+                      <ion-select-option [value]="true">Yes</ion-select-option>
+                      <ion-select-option [value]="false">No</ion-select-option>
+                    </ion-select>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Maximum Single Transactional Value</ion-label>
+                    <ion-input type="text" formControlName="maximumSingleTransactionalValue"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(2)?.get('maximumSingleTransactionalValue')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+                </div>
+              </div>
+          
+              <div *ngIf="isProductSelected(3)">
+                <h3>Social Grant EFT Product Details</h3>
+                <div formGroupName="socialGrantEfts">
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Monthly Value</ion-label>
+                    <ion-input type="text" formControlName="monthlyValue"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(3)?.get('monthlyValue')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                </div>
+              </div>
+          
+              <div *ngIf="isProductSelected(4)">
+                <h3>EFT Debits Product Details</h3>
+                <div formGroupName="eftDebits">
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Total Value</ion-label>
+                    <ion-input type="text" formControlName="totalValue"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(4)?.get('totalValue')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Maximum Single Collection</ion-label>
+                    <ion-input type="text" formControlName="maximumSingleCollection"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(4)?.get('maximumSingleCollection')?.hasError('pattern')">
+                      Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                    </ion-note>
+                  </div>
+          
+                </div>
+              </div>
+          
+              <div *ngIf="isProductSelected(5)">
+                <h3>AVS/AVS-R Product Details</h3>
+                <div formGroupName="avs">
+          
+                  <div class="form-row">
+                    <ion-label class="labels">AVS-R Number of Requests Monthly</ion-label>
+                    <ion-input type="text" formControlName="avsRNumberofRequestsMonthly"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(5)?.get('avsRNumberofRequestsMonthly')?.hasError('pattern')">
+                      Number of requests must be a number with up to 10 digits.
+                    </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Number of Requests Monthly</ion-label>
+                    <ion-input type="text" formControlName="numberofRequestsMonthly"></ion-input>
+                    <ion-note color="danger" *ngIf="getProductFormGroup(5)?.get('numberofRequestsMonthly')?.hasError('pattern')">
+                      Number of requests must be a number with up to 10 digits.
+                    </ion-note>
+                  </div>
+          
+                </div>
+              </div>
+          
+             
+              <div *ngIf="isProductSelected(8)">
+                <h3>ALLPS Management Platform Product Details</h3>
+             
+                  <div formGroupName="allpsManagementPlatforms">
+            
+                      <div class="form-row">
+                        <ion-label class="labels">Expected Monthly Requests</ion-label>
+                        <ion-input formControlName="expectedMonthlyRequests" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(8)?.get('expectedMonthlyRequests')?.hasError('pattern')" slot="end">
+                          Number of requests must be a number with up to 10 digits.
+                        </ion-note>
+                      </div>
+                     
+
+            
+                      <div class="form-row">
+                        <ion-label class="labels">Fee Payable on Authentication Success</ion-label>
+                        <ion-input formControlName="feePayableAuthenticationSuccess" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(8)?.get('feePayableAuthenticationSuccess')?.hasError('pattern')" slot="end">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+  
+                      </div>
+                    
+            
+                      <div class="form-row">
+                        <ion-label class="labels">Fee Payable on Document Collection</ion-label>
+                        <ion-input formControlName="feePayableDocumentCollection" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(8)?.get('feePayableDocumentCollection')?.hasError('pattern')" slot="end">
+                          Value must be a number with up to 10 digits before the decimal and 2 digits after.
+                        </ion-note>
+                      </div>
+                     
+
+            
+                      <div class="form-row">
+                        <ion-label class="labels">Automatic expiration in Days</ion-label>
+                        <ion-input formControlName="automaticExpiration" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(8)?.get('automaticExpiration')?.hasError('pattern')" slot="end">
+                          Number of Days must be a number with up to 10 digits.
+                        </ion-note>
+                      </div>
+                     
+
+            
+                      <div class="form-row">
+                        <ion-label class="labels">Automatic revoke in Days</ion-label>
+                        <ion-input formControlName="automaticRevoke" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(8)?.get('automaticRevoke')?.hasError('pattern')" slot="end">
+                          Number of Days must be a number with up to 10 digits.
+                        </ion-note>
+                      </div>
+                    
+
+            
+                  </div>
+               
+              </div>
+            
+              <div *ngIf="isProductSelected(9)">
+                <h3>EFT Credits</h3>
+             
+                  <div formGroupName="eftcreditDetail">
+            
+                    <div class="form-row">
+                      <ion-label class="labels">Credits Paid to:</ion-label>
+                      <ion-select formControlName="eftCreditId" (ionChange)="onEftCreditChange()">
+                        <ion-select-option *ngFor="let eftCredit of eftCredits" [value]="eftCredit.eftCreditId">
+                          {{ eftCredit.description }}
+                        </ion-select-option>
+                      </ion-select>
+                    </div>
+                     
+                   
+                    
+                        <div *ngIf="eWalletOptions.length > 0">
+                          <div class="form-row">
+                          <ion-label class="labels">Select eWallet Options</ion-label>
+                          <ion-select formControlName="ewalletOptionId" (ionChange)="onEwalletOptionChange()">
+                            <ion-select-option *ngFor="let option of eWalletOptions" [value]="option.ewalletOptionId">
+                              {{ option.description }}
+                            </ion-select-option>
+                          </ion-select>
+                        </div>
+                      </div>
+                 
+
+                      <div *ngIf="applicationForm.get('eftcreditDetail.ewalletOptionId')?.value === 1">
+                        <div class="form-row">
+                        <ion-label class="labels">Number of cards</ion-label>
+                        <ion-input formControlName="numberOfCards" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(9)?.get('numberOfCards')?.hasError('pattern')" slot="end">
+                          Number of cards must be a number with up to 10 digits.
+                        </ion-note>
+                       </div>
+
+                       <div class="form-row">
+                        <ion-label class="labels">Number of Pin Mailers</ion-label>
+                        <ion-input formControlName="numberOfPinMailers" type="number"></ion-input>
+                        <ion-note *ngIf="getProductFormGroup(9)?.get('numberOfPinMailers')?.hasError('pattern')" slot="end">
+                          Number of pin mailers must be a number with up to 10 digits.
+                        </ion-note>
+                      </div>
+
+                      <div class="form-row">
+                        <ion-label class="labels">Delivery Address</ion-label>
+                        <ion-input 
+                          #eftDeliveryAddressInput 
+                          formControlName="deliveryAddress"
+                          (ionBlur)="initAutocomplete(eftDeliveryAddressInput, 'delivery')"></ion-input>
+                      </div>
+                    </div>
+                    
+            
+                     
+                      
+                      
+            
+                   <!--    <ion-item>
+                        <ion-label position="floating">Delivery Address</ion-label>
+                        <ion-input formControlName="deliveryAddress" matGoogleMapsAutocomplete 
+                          [country]="['ZA']" placeholder="Enter delivery address" 
+                          (onAutocompleteSelected)="onEftcreditDetailSelected($event)" 
+                          (onAddressChange)="onEftcreditDetailChange($event)"></ion-input>
+                      </ion-item> -->
+            
+                    </div>
+                  </div>
+                  <div class="button-group">
+                    <div class="row"  *ngIf="applicationStatusId === 1">
+                      <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                      <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                      
+                    </div>
+                  </div>
+              </form>
+             
+           
+          </div>
+
+
+
+
+
+
+
+
+
+          <div *ngSwitchCase="8">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+              <h2>Debit Order Banking Details</h2>
+          
+              <div class="page-description">
+                <p>
+                  This section of the application is dedicated to collecting the banking details required for setting up a debit order for the following fees:
+                </p>
+                <ul>
+                  <li>Monthly Infrastructure Fee</li>
+                  <li>Device Rental Fees</li>
+                  <li>Funds to Credit the Mercantile AET Bank Account Should the Account Be in an Overdrawn State</li>
+                </ul>
+              </div>
+          
+              <!-- Account Form 1 -->
+              <div formGroupName="accountForm1">
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Account Holder Name</ion-label>
+                    <ion-input formControlName="accountHolderName"></ion-input>
+                              
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Account Number</ion-label>
+                    <ion-input formControlName="accountNumber" type="number"></ion-input>
+                   
+                    <ion-note slot="end" color="danger" *ngIf="accountForm1.get('accountNumber')?.invalid && accountForm1.get('accountNumber')?.touched">
+                      <small *ngIf="accountForm1.get('accountNumber')?.hasError('pattern')">Invalid account number. It should be 6 to 10 digits.</small>
+                    </ion-note>
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Account Type</ion-label>
+                    <ion-select formControlName="accountTypeId">
+                      <ion-select-option *ngFor="let type of accountTypes" [value]="type.accountTypeId">
+                        {{ type.description }}
+                      </ion-select-option>
+                    </ion-select>
+
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Bank Name</ion-label>
+                    <ion-select formControlName="bankNameId">
+                      <ion-select-option *ngFor="let bank of banks" [value]="bank.bankNameId">
+                        {{ bank.description }}
+                      </ion-select-option>
+                    </ion-select>
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Branch Name</ion-label>
+                    <ion-input formControlName="branchName"></ion-input>
+                   
+                </div>
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+            </form>
+          </div>
+
+
+
+
+
+
+
+
+          <div *ngSwitchCase="9">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+              <h2>Capitec Bank AET Account</h2>
+          
+              <div class="page-description">
+                <p>
+                  Through the conclusion of the agreement with Amplifin, Capitec Bank will automatically become the DebiCheck Acquiring Bank for the Applicant. Net Credits received after processing of payment instructions, associated monthly infrastructure and transaction fees and taking cognizance of the minimum balance required to be maintained will on an automated basis be transferred to the commercial bank account nominated and specified by the User. The Capitec AET Bank Account has “read only” rights: - Except for the automated transfer to the account nominated by the User, no other transactability is entertained on the Capitec AET Bank Account.
+                </p>
+              </div>
+          
+              <div formGroupName="accountForm2">
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Account Holder Name</ion-label>
+                    <ion-input formControlName="accountHolderName"></ion-input>
+                  
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Account Number</ion-label>
+
+                    <ion-input formControlName="accountNumber" type="number"></ion-input>
+                  
+                    <ion-note slot="end" color="danger" *ngIf="accountForm2.get('accountNumber')?.invalid && accountForm2.get('accountNumber')?.touched">
+                      <small *ngIf="accountForm2.get('accountNumber')?.hasError('pattern')">Invalid account number. It should be 6 to 10 digits.</small>
+                    </ion-note>
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Account Type</ion-label>
+                    <ion-select formControlName="accountTypeId">
+                      <ion-select-option *ngFor="let type of accountTypes" [value]="type.accountTypeId">
+                        {{ type.description }}
+                      </ion-select-option>
+                    </ion-select>
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Bank Name</ion-label>
+                    <ion-select formControlName="bankNameId">
+                      <ion-select-option *ngFor="let bank of banks" [value]="bank.bankNameId">
+                        {{ bank.description }}
+                      </ion-select-option>
+                    </ion-select>
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Branch Name</ion-label>
+                  
+                    <ion-input formControlName="branchName"></ion-input>
+                </div>
+          
+                <div class="page-description">
+                  <p>
+                    Net Credits will be transferred to the nominated bank account detailed above on a normal business day after 12h00 but before 13h00 and on Saturdays before 07h30. As there is a cost associated with such transfers, please nominate a minimum daily transfer limit to be reached before a transfer is initiated.
+                  </p>
+                </div>
+          
+                <div class="form-row">
+                  <ion-label for="legalEntityName" class="labels">Minimum Daily Transfer Limit</ion-label>
+                    <ion-input formControlName="minimumDailyTransferLimit" type="number"></ion-input>
+                    <ion-note slot="end" color="danger" *ngIf="accountForm2.get('minimumDailyTransferLimit')?.invalid && accountForm2.get('minimumDailyTransferLimit')?.touched">
+                      <small *ngIf="accountForm2.get('minimumDailyTransferLimit')?.hasError('pattern')">Invalid limit. It should be up to 10 digits.</small>
+                    </ion-note>
+                </div>
+              </div>
+          
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+            </form>
+          </div>
+
+
+
+
+
+          <div *ngSwitchCase="10">
+            <form [formGroup]="applicationForm" (ngSubmit)="onSubmit()" class="form-container">
+              <h2>Processing Code Details</h2> 
+          
+              <div formArrayName="processingcodes">
+                <div *ngFor="let processingCode of processingcodes.controls; let i=index" [formGroupName]="i">
+                  <div class="form-row">
+                    <ion-label class="labels">Trading Name</ion-label>
+                   
+                      <ion-input formControlName="pC_TradingName"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Preferred User Abbreviated Name</ion-label>
+                  
+                      <ion-input formControlName="abbreviatedName"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('abbreviatedName')?.invalid && processingCode.get('abbreviatedName')?.touched">
+                        <small *ngIf="processingCode.get('abbreviatedName')?.hasError('pattern')">Abbreviated Name must be a maximum of 8 letters</small>
+                      </ion-note>
+                  </div>
+                  <div class="form-row">
+                    <ion-label class="labels">Full Physical Address where Processing code will be implemented</ion-label>
+                    <ion-input 
+                      #processingCodeAddressInput 
+                      formControlName="physicalAddress" 
+                      (ionBlur)="onProcessingCodeAddressSelected(processingCodeAddressInput, i)"></ion-input>
+                  </div>
+                 <!--  <div class="form-row">
+                    <label class="labels">Full Physical Address where Processing code will be implemented</label>
+                    <ion-item>
+                      <ion-label position="stacked"></ion-label>
+                      <ion-input 
+                        formControlName="physicalAddress" 
+                        placeholder="Enter physical address" 
+                        (onAutocompleteSelected)="onProcessingCodeAddressSelected($event, i)"
+                        (onAddressChange)="onProcessingCodeAddressChange($event, i)"></ion-input>
+                    </ion-item>
+                  </div> -->
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Landlord Name</ion-label>
+                      <ion-input formControlName="landlordName"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Landlord Telephone Number</ion-label>
+                      <ion-input formControlName="landlordNumber"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('landlordNumber')?.invalid && processingCode.get('landlordNumber')?.touched">
+                        <small *ngIf="processingCode.get('landlordNumber')?.hasError('pattern')">Invalid number. It should be 10 digits starting with 0.</small>
+                      </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Telephone Number where Processing Code will be implemented</ion-label>
+                      <ion-input formControlName="pcDebtorNumber"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('pcDebtorNumber')?.invalid && processingCode.get('pcDebtorNumber')?.touched">
+                        <small *ngIf="processingCode.get('pcDebtorNumber')?.hasError('pattern')">Invalid number. It should be 10 digits starting with 0.</small>
+                      </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Email Address where Processing Code will be implemented</ion-label>
+                      <ion-input formControlName="pcEmailAddress"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('pcEmailAddress')?.invalid && processingCode.get('pcEmailAddress')?.touched">
+                        <small *ngIf="processingCode.get('pcEmailAddress')?.hasError('invalidEmail')">Invalid email address.</small>
+                      </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Manager Name</ion-label>
+                      <ion-input formControlName="managerName"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Manager Cell Phone Number</ion-label>
+                      <ion-input formControlName="managerNumber"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('managerNumber')?.invalid && processingCode.get('managerNumber')?.touched">
+                        <small *ngIf="processingCode.get('managerNumber')?.hasError('pattern')">Invalid number. It should be 10 digits starting with 0.</small>
+                      </ion-note>
+                  </div>
+          
+                  <h3>Contact Details to be provided to Debtors and used in DebiCheck</h3>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Name (i.e Call Centre)</ion-label>
+                      <ion-input formControlName="pcDebtorName"></ion-input>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Telephone Number (i.e Call Centre number)</ion-label>
+                      <ion-input formControlName="pcDebtorTeleNumber"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('pcDebtorTeleNumber')?.invalid && processingCode.get('pcDebtorTeleNumber')?.touched">
+                        <small *ngIf="processingCode.get('pcDebtorTeleNumber')?.hasError('pattern')">Invalid number. It should be 10 digits starting with 0.</small>
+                      </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Email Address (i.e Call Centre Email Address)</ion-label>
+                      <ion-input formControlName="pcDebtorEmailAddress"></ion-input>
+                      <ion-note slot="end" color="danger" *ngIf="processingCode.get('pcDebtorEmailAddress')?.invalid && processingCode.get('pcDebtorEmailAddress')?.touched">
+                        <small *ngIf="processingCode.get('pcDebtorEmailAddress')?.hasError('invalidEmail')">Invalid email address.</small>
+                      </ion-note>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Name of Debtor Management System</ion-label>
+                      <ion-select formControlName="debtorManagementSystemId">
+                        <ion-select-option *ngFor="let system of debtorManagementSystems" [value]="system.debtorManagementSystemId">
+                          {{ system.description }}
+                        </ion-select-option>
+                      </ion-select>
+                  </div>
+          
+                  <div class="form-row">
+                    <ion-label class="labels">Select Option:</ion-label>
+                    <ion-radio-group 
+                      [formControl]="getOptionControl(processingCode)" 
+                      (ionChange)="onRadioButtonChange($event.detail.value, i)">
+                      <ng-container *ngFor="let option of radioOptions">
+                        <ion-radio *ngIf="option.optionId !== 3 || i > 0" [value]="option.optionId">
+                          {{ option.description }}
+                        </ion-radio>
+                      </ng-container>
+                    </ion-radio-group>
+                  </div>
+          
+                  <div *ngIf="processingCode.get('optionId')?.value === 1">
+                    <p><strong>Account Holder Name:</strong> {{ capitecAetAccount?.accountHolderName }}</p>
+                    <p><strong>Account Number:</strong> {{ capitecAetAccount?.accountNumber }}</p>
+                    <p><strong>Bank Name:</strong> {{ getBankName(capitecAetAccount?.bankNameId) }}</p>
+                    <p><strong>Account Type:</strong> {{ getAccountType(capitecAetAccount?.accountTypeId) }}</p>
+                    <p><strong>Branch Name:</strong> {{ capitecAetAccount?.branchName }}</p>
+                  </div>
+          
+                  <div *ngIf="processingCode.get('optionId')?.value === 2 && processingCode.get('accountId')?.value">
+                    <p><strong>Account Holder Name:</strong> {{ newlyAddedAccount[i]?.accountHolderName }}</p>
+                    <p><strong>Account Number:</strong> {{ newlyAddedAccount[i]?.accountNumber }}</p>
+                    <p><strong>Bank Name:</strong> {{ getBankName(newlyAddedAccount[i]?.bankNameId) }}</p>
+                    <p><strong>Account Type:</strong> {{ getAccountType(newlyAddedAccount[i]?.accountTypeId) }}</p>
+                    <p><strong>Branch Name:</strong> {{ newlyAddedAccount[i]?.branchName }}</p>
+                  </div> 
+
+
+                  <div *ngIf="processingCode.get('optionId')?.value === 2 && processingCode.get('accountId')?.value === null">
+                    <form [formGroup]="accountForm">
+                      <div class="form-row">
+                        <ion-label class="labels">Account Holder Name</ion-label>
+                          <ion-input formControlName="accountHolderName"></ion-input>
+                      </div>
+                      
+                      <div class="form-row">
+                        <ion-label class="labels">Account Number</ion-label>
+                          <ion-input formControlName="accountNumber"></ion-input>
+                          <ion-note slot="end" color="danger" *ngIf="accountForm.get('accountNumber')?.invalid && accountForm.get('accountNumber')?.touched">
+                            <small *ngIf="accountForm2.get('accountNumber')?.hasError('pattern')">Invalid account number. It should be 6 to 10 digits.</small>
+                          </ion-note>
+                      </div>
+          
+                      <div class="form-row">
+                        <ion-label class="labels">Bank Name</ion-label>
+                          <ion-select formControlName="bankNameId">
+                            <ion-select-option *ngFor="let name of banks" [value]="name.bankNameId">
+                              {{ name.description }}
+                            </ion-select-option>
+                          </ion-select>
+                      </div>
+          
+                      <div class="form-row">
+                        <ion-label class="labels">Branch Name</ion-label>
+                          <ion-input formControlName="branchName"></ion-input>
+                      </div>
+          
+                      <div class="form-row">
+                        <ion-label class="labels">Account Type</ion-label>
+                          <ion-select formControlName="accountTypeId">
+                            <ion-select-option *ngFor="let type of accountTypes" [value]="type.accountTypeId">
+                              {{ type.description }}
+                            </ion-select-option>
+                          </ion-select>
+                      </div>
+          
+                      <ion-button type="button" color="warning" (click)="addNewAccount(i)">Add Account</ion-button>
+                    </form>
+                  </div>
+          
+                  <div *ngIf="processingCode.get('optionId')?.value ===3">
+                    <p><strong>Account Holder Name:</strong> {{ previousAccount[i]?.accountHolderName }}</p>
+                    <p><strong>Account Number:</strong> {{ previousAccount[i]?.accountNumber }}</p>
+                    <p><strong>Bank Name:</strong> {{ getBankName(previousAccount[i]?.bankNameId) }}</p>
+                    <p><strong>Account Type:</strong> {{ getAccountType(previousAccount[i]?.accountTypeId) }}</p>
+                    <p><strong>Branch Name:</strong> {{ previousAccount[i]?.branchName }}</p>
+                  </div>
+          
+                  <ion-button *ngIf="applicationStatusId === 1" color="danger" type="button" (click)="removeProcessingCode(i)">Remove Processing Code</ion-button>
+                </div>
+                
+                <ion-button *ngIf="applicationStatusId === 1" color="primary" type="button" (click)="addProcessingCode()">Add Processing Code</ion-button>
+              </div>
+
+              <div class="button-group">
+                <div class="row"  *ngIf="applicationStatusId === 1">
+                  <ion-button expand="full" color="primary" class="sConti" (click)="saveAndContinue()">Save and Continue</ion-button>
+                  <ion-button expand="full" color="secondary" class="sExit" (click)="onSaveAndExit()">Save and Exit</ion-button>
+                  
+                </div>
+              </div>
+            </form>
+          </div>
+
+
+
+
+
+
+
+          <div *ngSwitchCase="11">
+            <form [formGroup]="applicationForm" (ngSubmit)="onFinalSubmit()" class="form-container" >
+              <div class="page-description">
+                <p>
+                  Please ensure that for the following documents (if applicable) you follow the standards set below:
+                </p>
+                <ul>
+                  <li>Clear Interior and Exterior photos</li>
+                  <li>Income tax certificate</li>
+                  <li>Front and back of RSA ID/Smart card</li>
+                  <li>Proof of Business address is not older than 3 months</li>
+                  <li>If Card Payment is selected: Proof of registered address <strong>as CIPC</strong> is not older than 3 months</li>
+                  <li>Proof of Residential address is not older than 3 months</li>
+                </ul>
+              </div>
+          
+             <div class="upload-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Document Description</th>
+                    <th>Action</th>
+                    <th>File Upload</th>
+                    <th>Submitted Documents</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let doc of requiredDocuments">
+                    <td class="document-description">{{ doc.description }}</td>
+                    <td>
+                      <ion-button  *ngIf="applicationStatusId === 1" (click)="takePicture(doc.applicationRequiredDocumentId)">
+                        Take Picture
+                      </ion-button>
+                    </td>
+                    <td>
+                      <ion-input type="file" 
+                        *ngIf="applicationStatusId === 1" 
+                        id="fileInput-{{doc.applicationRequiredDocumentId}}" 
+                        (change)="onFileSelected($event, doc.applicationRequiredDocumentId)" 
+                        multiple
+                      ></ion-input>
+                    </td>
+                    <td class="submitted-documents">
+                      <div *ngIf="doc.submittedDocuments && doc.submittedDocuments.$values.length > 0" class="submitted-documents">
+                        <div *ngFor="let submittedDoc of doc.submittedDocuments.$values">
+                          <div class="submitted-doc">
+                            <span class="submission-time">{{ submittedDoc.submissionDateTime | date:'short' }}</span>
+                            <a [href]="submittedDoc.document" target="_blank" class="view-link">View Document</a>
+                          </div>
+                        </div>
+                      </div>
+                      <div *ngIf="!(doc.submittedDocuments && doc.submittedDocuments.$values.length > 0)" class="submitted-text">
+                        No submitted documents
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+                  
+          
+              <div *ngIf="applicationStatusId === 1">
+                <table class="file-table">
+                  <thead>
+                    <tr>
+                      <th>File Name</th>
+                      <th>Status</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let file of selectedFiles; let i = index">
+                      <td>{{ file.name }}</td>
+                      <td>
+                        <div class="progress" *ngIf="file.uploading">
+                          <div class="progress-bar" [style.width.%]="file.progress"></div>
+                        </div>
+                        <span *ngIf="!file.uploading">{{ file.uploaded ? 'Uploaded' : 'Pending' }}</span>
+                      </td>
+                      <td>
+                        <ion-button type="button" (click)="uploadFile(file)" *ngIf="!file.uploading && !file.uploaded">Upload</ion-button>
+                        <ion-button type="button" (click)="removeFile(i)" *ngIf="!file.uploading">{{ file.uploaded ? 'Delete' : 'Remove' }}</ion-button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              
+                <ion-button style="margin-top: 20px" type="button" (click)="uploadAll()" *ngIf="hasPendingUploads()">Upload All</ion-button>
+              </div>
+              
+              </div>
+          
+              <div *ngIf="errorMessage">
+                <p>{{ errorMessage }}</p>
+                <ul>
+                  <li *ngFor="let value of missingValues">{{ value }}</li>
+                </ul>
+              </div>
+          
+              <div>
+                <div style="margin-top:20px"></div>
+               
+                <ion-button *ngIf="applicationStatusId === 1" type="submit" color="primary">Submit Application</ion-button>
+              </div>
+            </form>
+          </div>
+
+
+
+
+        </div>
+      </ng-container>
+    </ng-container>
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="navigation-buttons">
+    <ion-button expand="full" *ngIf="selectedStep > 0" (click)="prevStep()">Previous</ion-button>
+    <ion-button expand="full" *ngIf="selectedStep < steps.length - 1" (click)="nextStep()">Next</ion-button>
+  </div>
+</ion-content>

@@ -1,0 +1,22 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="ion-text-center">Start an Application</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<div class="form-container">
+  <form [formGroup]="legalentityform" (ngSubmit)="onSubmit()">
+    <ion-label class="ion-text-center"> Choose Legal Entity Type</ion-label>
+    <ion-item>
+    
+      <ion-select formControlName="legalEntityId" required >
+        <ion-select-option *ngFor="let entityType of legalEntityTypes" [value]="entityType.legalEntityTypeId" >
+          {{ entityType.description }}
+        </ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-button expand="block" type="submit" color="primary">Submit</ion-button>
+  </form>
+</div>
+
+

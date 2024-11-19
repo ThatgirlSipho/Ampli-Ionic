@@ -1,0 +1,59 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+   <ion-buttons slot="start">
+      <ion-button (click)="goBack()" fill="clear">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="title-centered">Update Profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+  
+
+<!-- Background image -->
+
+
+<form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="form-container">
+  <div class="form-group">
+    <label for="titleId">Title</label>
+    <select id="titleId" formControlName="titleId" class="form-control">
+      <option *ngFor="let title of titles" [value]="title.titleId">{{ title.description }}</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="name">Name</label>
+    <input id="name" formControlName="name" type="text" class="form-control" placeholder="Enter Name" />
+  </div>
+
+  <div class="form-group">
+    <label for="surname">Surname</label>
+    <input id="surname" formControlName="surname" type="text" class="form-control" placeholder="Enter Surname" />
+  </div>
+
+  <div class="form-group">
+    <label for="email">Email</label>
+    <input id="email" formControlName="email" type="email" class="form-control" placeholder="Enter Email" />
+  </div>
+
+  <div class="form-group">
+    <label for="businessName">Business Name</label>
+    <input id="businessName" formControlName="businessName" type="text" class="form-control" placeholder="Enter Business Name" />
+  </div>
+
+  <div class="form-group">
+    <label for="cellNumber">Cell Number</label>
+    <input id="cellNumber" formControlName="cellNumber" type="tel" class="form-control" placeholder="Enter Cell Number" />
+    <div *ngIf="cellNumber?.invalid && (cellNumber?.dirty || cellNumber?.touched)" class="text-danger">
+      <div *ngIf="cellNumber?.errors?.['pattern']" class="error-message">Cell Number must contain only numbers.</div>
+    </div>
+  </div>
+
+  
+  <div class="form-actions">
+    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="button" class="btn btn-secondary" (click)="goBack()">Cancel</button>
+  </div>
+</form>
+

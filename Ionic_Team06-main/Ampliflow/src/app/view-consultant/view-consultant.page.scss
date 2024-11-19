@@ -1,0 +1,55 @@
+.page-background {
+    background-color: #f4f4f4; // A light background color
+    height: 100%; // Fill the height of the page
+  }
+  
+  .consultant-card {
+    background: white; // White background for the card
+    border-radius: 10px; // Rounded corners
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); // Slight shadow
+    margin: 16px auto; // Margin around the card, auto centers it
+    padding: 16px; // Padding inside the card
+    max-width: 400px; // Set a max width for the card
+    text-align: center; // Center-align text in the card
+  }
+  
+  .profile-picture {
+    display: flex; // Use flexbox for alignment
+    justify-content: center; // Center horizontally
+    align-items: center; // Center vertically
+    margin-bottom: 16px; // Space below the picture
+  
+    img {
+      width: 100px; // Set a fixed width
+      height: 100px; // Set a fixed height
+      border-radius: 50%; // Make the image round
+      object-fit: cover; // Crop the image to fill the circle
+      border: 2px solid #ccc; // Optional: border around the profile picture
+    }
+  }
+  
+  .consultant-info {
+    h2 {
+      margin: 0; // Remove default margin
+      font-size: 20px; // Font size for the name
+      font-weight: bold; // Bold text for the name
+    }
+  
+    p {
+      margin: 4px 0; // Space between paragraphs
+      color: #666; // Grey color for text
+    }
+  
+    // Additional styles can be added as needed
+  }
+  ion-toolbar {
+    display: flex;
+    justify-content: space-between; /* Space between items */
+    align-items: center; /* Vertically center items */
+  }
+  
+  .title-centered {
+    flex: 1; /* Take up remaining space */
+    text-align: center; /* Center the text */
+  }
+  

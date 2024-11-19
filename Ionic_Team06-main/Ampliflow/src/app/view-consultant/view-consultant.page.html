@@ -1,0 +1,34 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()" fill="clear">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="title-centered">View Consultant</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+ 
+
+  <div class="consultant-card">
+    <div class="profile-picture" (click)="openImageModal()">
+      <img *ngIf="consultant?.profilePic"
+           [src]="'data:image/jpeg;base64,' + consultant?.profilePic" 
+           alt="Profile Picture">
+      <img *ngIf="!consultant?.profilePic" 
+           src="assets/profile.jpg" 
+           alt="Default Profile Picture">
+    </div>
+    
+    <div class="consultant-info">
+      <h2>{{ consultant?.fullName || 'Not Available' }}</h2>
+      <p>{{ consultant?.email || 'Not Available' }}</p>
+      <p>{{ consultant?.cellNumber || 'Not Available' }}</p>
+      <p *ngIf="!consultant?.fullName && !consultant?.email && !consultant?.cellNumber">
+        For more information, please contact the team for assistance.
+      </p>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,7 @@
+{
+  "name": "Ampliflow",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
